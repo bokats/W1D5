@@ -1,3 +1,5 @@
+require_relative '00_tree_node'
+
 class KnightPathFinder
   BOARD_SIZE = 8
   DELTAS = [
@@ -17,25 +19,19 @@ class KnightPathFinder
   end
 
   def self.valid_moves(pos)
-    visited_pos = []
-    queue = [pos]
-
-    until queue.empty?
-      current_pos = queue.shift
-      visited_pos << current_pos
-      DELTAS.each do |shift|
-        new_pos = current_pos[0] + shift[0], current_pos[1] + shift[1]
-        if new_pos[0] >= 0 && new_pos[0] < BOARD_SIZE &&
-           new_pos[1] >= 0 && new_pos[1] < BOARD_SIZE
-          queue << new_pos
-        end
+    valid_pos = []
+    DELTAS.each do |shift|
+      new_pos = [pos[0] + shift[0], pos[1] + shift[1]]
+      if new_pos[0] >= 0 && new_pos[0] < BOARD_SIZE &&
+         new_pos[1] >= 0 && new_pos[1] < BOARD_SIZE
+        valid_pos << new_pos
       end
     end
-    visited_pos
+    valid_pos
   end
 
   def new_move_positions(pos)
-    KnightPathFinder.valid_moves?(pos).select do |move|
+    KnightPathFinder.valid_moves(pos).select do |move|
       !@visited_positions.include?(move)
     end
   end
@@ -59,7 +55,8 @@ class KnightPathFinder
   end
 
   def find_path(end_pos)
-    start = tree[0]
+    start = build_move_tree[0]
+    p start
     trace_path_back(start.bfs(end_pos))
   end
 
@@ -70,8 +67,11 @@ class KnightPathFinder
     until queue.empty?
       current_node = queue.shift
       path.unshift(current_node.value)
-      queue << current_node.parent unless curren_node.parent.nil?
+      queue << current_node.parent unless current_node.parent.nil?
     end
     path
   end
 end
+kpf = KnightPathFinder.new([0, 0])
+# p kpf.find_path([7, 6]) # => [[0, 0], [1, 2], [2, 4], [3, 6], [5, 5], [7, 6]]
+p kpf.find_path([6, 2]) # => [[0, 0], [1, 2], [2, 0], [4, 1], [6, 2]]
